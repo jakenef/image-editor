@@ -88,11 +88,62 @@ function motionblur(image: Image, length: number) {
   }
 }
 
-function grayscale(image: Image) {}
+function grayscale(image: Image) {
+  for (let x = 0; x < image.getWidth(); x++) {
+    for (let y = 0; y < image.getHeight(); y++) {
+      const currentColor: Color = image.get(x, y);
 
-function invert(image: Image) {}
+      let grayLevel: number = Math.floor(
+        (currentColor.red + currentColor.green + currentColor.blue) / 3
+      );
+      grayLevel = Math.max(0, Math.min(grayLevel, 255));
 
-function emboss(image: Image) {}
+      currentColor.red = grayLevel;
+      currentColor.green = grayLevel;
+      currentColor.blue = grayLevel;
+    }
+  }
+}
+
+function invert(image: Image) {
+  for (let x = 0; x < image.getWidth(); x++) {
+    for (let y = 0; y < image.getHeight(); y++) {
+      const currentColor: Color = image.get(x, y);
+      currentColor.red = 255 - currentColor.red;
+      currentColor.green = 255 - currentColor.green;
+      currentColor.blue = 255 - currentColor.blue;
+    }
+  }
+}
+
+function emboss(image: Image) {
+  for (let x = image.getWidth() - 1; x >= 0; x--) {
+    for (let y = image.getHeight() - 1; y >= 0; y--) {
+      const currentColor: Color = image.get(x, y);
+
+      let diff: number = 0;
+      if (x > 0 && y > 0) {
+        const upLeftColor: Color = image.get(x - 1, y - 1);
+        if (Math.abs(currentColor.red - upLeftColor.red) > Math.abs(diff)) {
+          diff = currentColor.red - upLeftColor.red;
+        }
+        if (Math.abs(currentColor.green - upLeftColor.green) > Math.abs(diff)) {
+          diff = currentColor.green - upLeftColor.green;
+        }
+        if (Math.abs(currentColor.blue - upLeftColor.blue) > Math.abs(diff)) {
+          diff = currentColor.blue - upLeftColor.blue;
+        }
+      }
+
+      let grayLevel: number = 128 + diff;
+      grayLevel = Math.max(0, Math.min(grayLevel, 255));
+
+      currentColor.red = grayLevel;
+      currentColor.green = grayLevel;
+      currentColor.blue = grayLevel;
+    }
+  }
+}
 
 function read(inputFile: string): Image {
   let image: Image | null = null;
